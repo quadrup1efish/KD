@@ -355,7 +355,7 @@ class AutoGMM:
             means[:,1] = self._scale(0.0,self.galaxy.s['jz/jc'])
         return weights, means, covariances
     
-    def fit(self, dims='auto'):
+    def fit(self, max_iter=1000, min_iter=500, dims='auto'):
         if self.morphology == True:
             if dims=='auto':
                 self.morphology_model = self._morphology_class()
@@ -379,7 +379,7 @@ class AutoGMM:
                 min_index = np.min(np.where(Delta_mBICs < self.criterion)[0])
                 self.n_components = self.ncs[min_index]
             weights, means, covariances = self._ini_physics()
-            gmm = GMM(n_components=self.n_components, n_init=1,ini_weights=weights,ini_means=means,ini_covariances=covariances, max_iter=1000, min_iter=500).partial_fit(self.X_train, do_init=False)
+            gmm = GMM(n_components=self.n_components, n_init=1,ini_weights=weights,ini_means=means,ini_covariances=covariances, max_iter=max_iter, min_iter=min_iter).partial_fit(self.X_train, do_init=False)
             self.BIC = gmm.bic(self.X_train)
             self.mBIC= self.BIC/self.X_train.shape[0]
             mask = gmm.weights_ != 0
