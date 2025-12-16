@@ -113,15 +113,8 @@ class AutoGMM:
         x = f_r(y)
     
         inner_mask = (y >= 0.5) & (y <= 3.5)
-        if np.any(inner_mask):
-            x_inner = x[inner_mask]
-            y_inner = y[inner_mask]
-        else:
-            rcut = 5
-            ecut = f_r(rcut)
-            self.ecut=ecut
-            self.ecut_train = self._scale(ecut, e)
-            return self._scale(ecut, e), ecut
+        x_inner = x[inner_mask]
+        y_inner = y[inner_mask]
         coeff1 = np.polyfit(x_inner, y_inner, 1)
        
         end_num = 30
