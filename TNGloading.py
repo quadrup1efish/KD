@@ -54,18 +54,17 @@ def loadGalaxy(basePath: str, run: str, snapNum: int, subID: int, fields: dict |
         elif partType == 'gas' and lenType[0] > 0:
             local_fields = fields[partType]
             loadSubset_data = il.snapshot.loadSubset(basePath, snapNum, partType, local_fields, subset, float32=True)
+            subhalo.g['phi']  = SimArray(data=np.zeros(len(subhalo.g)), dtype=np.float32, units=TNG_field_units('Potential'))
             for field in local_fields:
                 Name = NameMapping(field)
-                field_unit = TNG_field_units(field)
-                if field == 'Potential':
-                    subhalo.g[Name]  = SimArray(data=np.zeros(len(subhalo.g)), dtype=np.float32, units=field_unit)
-                else:
-                    subhalo.g[Name] = SimArray(data=loadSubset_data[field], dtype=np.float32, units=field_unit) 
+                field_unit = TNG_field_units(field) 
+                subhalo.g[Name] = SimArray(data=loadSubset_data[field], dtype=np.float32, units=field_unit) 
         elif partType == 'dm' and lenType[1] > 0:
             local_fields = fields[partType]
             local_fields.remove('Masses')
             loadSubset_data = il.snapshot.loadSubset(basePath, snapNum, partType, local_fields, subset, float32=True)
             local_fields.append('Masses')
+            subhalo.dm['phi']  = SimArray(data=np.zeros(len(subhalo.dm)), dtype=np.float32, units=TNG_field_units('Potential'))
             for field in local_fields:
                 Name = NameMapping(field)
                 field_unit = TNG_field_units(field)

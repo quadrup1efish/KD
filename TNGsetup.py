@@ -108,8 +108,8 @@ def create_fields(**kwargs) -> dict:
 
     base = {
         'star': ['Coordinates', 'Velocities', 'Masses', 'ParticleIDs', 'Potential', 'GFM_StellarFormationTime', 'GFM_Metallicity'],
-        'gas': ['Coordinates', 'Velocities', 'Masses', 'ParticleIDs', 'Potential'],
-        'dm': ['Coordinates', 'Velocities', 'Masses', 'ParticleIDs', 'Potential'],
+        'gas': ['Coordinates', 'Velocities', 'Masses'],
+        'dm': ['Coordinates', 'Velocities', 'Masses'],
     }
 
     if kwargs:
