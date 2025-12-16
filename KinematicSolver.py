@@ -13,7 +13,7 @@ def GravitySolver(galaxy: SimSnap, Solver: str = 'Agama') -> SimSnap:
         import agama
         agama.setUnits(length=1, mass=1, velocity=1)
 
-        if galaxy['r'].min() == 0: pos += 1e-10
+        if galaxy['r'].min() == 0: pos[np.argmin(galaxy['r'])] += 1e-3
         pot = agama.Potential(type='Multipole', particles=(pos, mass), symmetry='s', smoothing=eps)
 
         galaxy['phi'] = pot.potential(galaxy['pos'])
