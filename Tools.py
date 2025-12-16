@@ -1,7 +1,6 @@
 import scipy
 import numpy as np
 import illustris_python as il
-from AnastrisTNG import TNGsimulation
 from dataclasses import dataclass, fields
 
 G = 4.3009e-6
@@ -14,6 +13,7 @@ class GMMcomponent:
     weights: np.ndarray = None
     means: np.ndarray = None
     covariances: np.ndarray = None
+    ecut: np.float32 | None = None
     radius: np.ndarray = None
     def __getitem__(self, key):
         return getattr(self, key)
@@ -58,7 +58,7 @@ class Properties:
     Mdm_re: np.float64 = None
     Mdm_Re: np.float64 = None
     Mass_frac: np.float64 = None
-    Total_Mass: np.float64 = None
+    Mdyn_re: np.float64 = None
     """
     Shape properties
     """
@@ -115,7 +115,7 @@ class Component:
     iord: np.ndarray = None 
     mass: np.ndarray = None 
     metals: np.ndarray = None
-    energy: np.ndarray = None
+
     def __getitem__(self, key):
         return getattr(self, key)
     def keys(self): return [field.name for field in fields(self)]
@@ -238,6 +238,7 @@ def face_on(pos, vel, mass):
     up=[0.0, 1.0, 0.0]
     angmom_vec = cal_angmom(pos, vel, mass)
 
+    vec_in = np.asarray(angmom_vec)
     vec_in = vec_in / np.sum(vec_in ** 2).sum() ** 0.5
     vec_p1 = np.cross(up, vec_in)
     vec_p1 = vec_p1 / np.sum(vec_p1 ** 2).sum() ** 0.5
@@ -384,7 +385,7 @@ def cal_structure_info(galaxy, Particles_info):
             Mdm_re = np.sum(galaxy.dm['mass'][galaxy.dm['r'] <= re])
             Mdm_Re = np.sum(galaxy.dm['mass'][galaxy.dm['r'] <= Re])
 
-            Total_Mass = np.sum(galaxy['mass'][galaxy['r'] <= re])
+            Mdyn_re = np.sum(galaxy['mass'][galaxy['r'] <= re])
             Mass_frac  = Mass / total_stellar_mass
 
             axes, _, _ = getaxes(pos, mass)
@@ -410,7 +411,7 @@ def cal_structure_info(galaxy, Particles_info):
                     Mdm_re=Mdm_re, 
                     Mdm_Re=Mdm_Re,
                     Mass_frac=Mass_frac,
-                    Total_Mass=Total_Mass,
+                    Mdyn_re=Mdyn_re,
                     axes = axes,
                     q_axial_ratio = q,
                     p_axial_ratio = p,

@@ -7,7 +7,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from sklearn.cluster import KMeans, kmeans_plusplus
 from joblib import Parallel, delayed, parallel_backend
-from typing import Optional, Union, Tuple, List, Dict, Any
+from typing import Optional
 
 @dataclass
 class Config:
@@ -123,10 +123,8 @@ class GMM:
         self.weights_ = config.ini_weights
         self.means_ = config.ini_means
         self.covariances_ = config.ini_covariances
-        self.PRINT = config.Print
         self.convergence = config.convergence
-        self.Print = config.Print
-        self.convergence = config.convergence
+        self.Print = config.Print 
         self.seed = config.seed
 
         self.lower_bounds = []
@@ -161,7 +159,7 @@ class GMM:
         """Initialize the responsibilities using KMeans clustering."""
         n_samples = len(X)
         resp = np.zeros((n_samples, self.n_components))
-        label = (KMeans(n_clusters=self.n_components, n_init=1, random_state=None).fit(X).labels_)
+        label = (KMeans(n_clusters=self.n_components, n_init=1, random_state=self.seed).fit(X).labels_)
         resp[np.arange(n_samples), label] = 1
         return resp
     
@@ -169,7 +167,7 @@ class GMM:
         """Initialize the responsibilities using KMeans++ clustering."""
         n_samples = len(X)
         resp = np.zeros((n_samples, self.n_components))
-        _, indices = kmeans_plusplus(X, self.n_components,random_state=None)
+        _, indices = kmeans_plusplus(X, self.n_components,random_state=self.seed)
         resp[indices, np.arange(self.n_components)] = 1
         return resp
     
@@ -179,6 +177,7 @@ class GMM:
         resp = self.random_state.uniform(size=(n_samples, self.n_components))
         resp /= resp.sum(axis=1)[:, np.newaxis] 
         return resp
+
     def is_pos_def(self, cov):
         """Check if a covariance matrix is positive definite."""
         if self.covariance_type == 'spherical':
@@ -189,7 +188,7 @@ class GMM:
         except np.linalg.LinAlgError:
             return False
 
-    def _initialization_(self, X):
+    def _initialization(self, X):
         """Initialize the GMM parameters."""
         if (self.ini_method=='kmeans'): 
             resp = self._ini_kmeans(X)
@@ -201,7 +200,8 @@ class GMM:
         nk = resp.sum(axis=0) + 10 * np.finfo(resp.dtype).eps
         means = np.dot(resp.T, X) / nk[:, np.newaxis]
         n_components, n_features = means.shape
-        if self.covariance_type == 'full': covariances = np.empty((n_components, n_features, n_features))
+        if self.covariance_type == 'full': 
+            covariances = np.empty((n_components, n_features, n_features))
         elif self.covariance_type =='spherical':
             covariances = np.empty(n_components)
         for k in range(n_components):
@@ -231,8 +231,7 @@ class GMM:
                 cov_matrix = np.eye(self.means_.shape[1]) * self.covariances_[k]
                 log_prob[:, k] = scipy.stats.multivariate_normal.logpdf(
                     X, mean=self.means_[k], cov=cov_matrix, allow_singular=False)
-        return log_prob
-
+        return log_prob 
     
     def _estimate_log_prob_norm(self, weighted_log_prob):
         """Estimate the log probability normalization."""
@@ -259,9 +258,7 @@ class GMM:
             covariances = np.empty((n_components, n_features, n_features))
         elif self.covariance_type =='spherical':
             covariances = np.empty(n_components)
-        else:
-            covariances = np.empty((n_components, n_features, n_features))
-
+        
         for k in range(n_components):
             diff = X - means[k]
             weighted_diff = diff * responsibilities[:, k][:, np.newaxis]
@@ -271,6 +268,7 @@ class GMM:
             elif self.covariance_type == 'spherical':
                 covariances[k] = np.trace(weighted_diff.T @ diff) / (nk[k] * n_features) + self.reg_covar
         return weights, means, covariances
+
     def _partial_m_step(self, X, responsibilities):
         n_samples, n_features = X.shape
 
@@ -292,9 +290,7 @@ class GMM:
                 new_covariances[k] += self.reg_covar * np.eye(n_features)
             elif self.covariance_type == 'spherical':
                 new_covariances[k] = (1 - self.decay) * self.covariances_[k] + self.decay * np.trace(sk[k]) / (nk[k] * n_features)
-                new_covariances[k] += self.reg_covar
-        #new_covariances = (1 - self.decay) * self.covariances_ + self.decay * sk / nk[:, np.newaxis, np.newaxis]
-        #new_covariances += self.reg_covar * np.eye(n_features)
+                new_covariances[k] += self.reg_covar 
         return new_weights, new_means, new_covariances
 
     
@@ -302,7 +298,7 @@ class GMM:
         start_time = time()
         if max_iter is not None: self.max_iter = max_iter
         if min_iter is not None: self.min_iter = min_iter
-        if self.weights_ is None or self.means_ is None or self.covariances_ is None: self._initialization_(X)
+        if self.weights_ is None or self.means_ is None or self.covariances_ is None: self._initialization(X)
 
         prev_lower_bound = -np.inf
         self.lower_bounds = []
@@ -334,8 +330,7 @@ class GMM:
     def _single_partial_fit(self, X, do_init):
         """Perform a single partial fit on the data X."""
         if self.weights_ is None or self.means_ is None or self.covariances_ is None or do_init:
-            print("Init...")
-            self._initialization_(X)
+            self._initialization(X)
 
         n_samples = X.shape[0]
         prev_lower_bound_smooth = -np.inf

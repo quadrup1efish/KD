@@ -177,9 +177,7 @@ class AutoGMM:
     def _estimate_means(self, X):
         return np.mean(X, axis=0)
 
-    def _ini_physics(self):
-        radius= self.galaxy.s['r']
-        mass  = self.galaxy.s['mass'] 
+    def _ini_physics(self): 
         if self.morphology_type == 'disk':
             Ecut, rcut = self._Ecut()
             means = self.morphology_model.means_.copy()
@@ -482,7 +480,6 @@ class AutoGMM:
                 iord=np.array(self.galaxy.s['iord'][mask]),
                 mass=np.array(self.galaxy.s['mass'][mask]),
                 metals=np.array(self.galaxy.s['metals'][mask]),
-                energy=np.array(self.galaxy.s['e'][mask])
                 )
 
 
@@ -500,8 +497,7 @@ class AutoGMM:
                     lum=lum,
                     iord=np.array(self.galaxy.s['iord'][mask]),
                     mass=np.array(self.galaxy.s['mass'][mask]),
-                    metals=np.array(self.galaxy.s['metals'][mask]),
-                    energy=np.array(self.galaxy.s['e'][mask])
+                    metals=np.array(self.galaxy.s['metals'][mask]), 
                 )
         if self.morphology_type=='disk' or self.morphology_type=='spheroid-disk':
             disk_mask = means[:,1] > 0.5
@@ -612,8 +608,7 @@ class AutoGMM:
                     lum=lum,
                     iord=np.array(self.galaxy.s['iord'][mask]),
                     mass=np.array(self.galaxy.s['mass'][mask]),
-                    metals=np.array(self.galaxy.s['metals'][mask]),
-                    energy=np.array(self.galaxy.s['e'][mask])
+                    metals=np.array(self.galaxy.s['metals'][mask]), 
                 )
 
             if len(warm_idx) > 0:
@@ -630,7 +625,6 @@ class AutoGMM:
                     iord=np.array(self.galaxy.s['iord'][mask]),
                     mass=np.array(self.galaxy.s['mass'][mask]),
                     metals=np.array(self.galaxy.s['metals'][mask]),
-                    energy=np.array(self.galaxy.s['e'][mask])
                 )
 
             if len(bulge_idx) > 0:
@@ -647,7 +641,6 @@ class AutoGMM:
                     iord=np.array(self.galaxy.s['iord'][mask]),
                     mass=np.array(self.galaxy.s['mass'][mask]),
                     metals=np.array(self.galaxy.s['metals'][mask]),
-                    energy=np.array(self.galaxy.s['e'][mask])
                 )
 
             if len(halo_idx) > 0:
@@ -664,7 +657,6 @@ class AutoGMM:
                     iord=np.array(self.galaxy.s['iord'][mask]),
                     mass=np.array(self.galaxy.s['mass'][mask]),
                     metals=np.array(self.galaxy.s['metals'][mask]),
-                    energy=np.array(self.galaxy.s['e'][mask])
                 )
         if self.morphology_type==None:
             print("Using Du2019 threshold")
